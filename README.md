@@ -1,4 +1,4 @@
-![CCCCombo!!](https://github.com/christopherdebeer/CCCCombo.js/raw/master/combo.png)
+	![CCCCombo!!](https://github.com/christopherdebeer/CCCCombo.js/raw/master/combo.png)
 
 CCCCombo
 ====
