@@ -84,9 +84,12 @@ Usage
 Options
 --------
 
-$('a').CCCComo({
-	onCombo: function(combo) {}, // callback
-	combos: [], 			// an array of your prefeined combos to check against
-	comboTimeout: 1000,		// timeout for linking moves into a combo
-	tapTimeout: 100,		// timout for taps to register as individual taps
-})
+	$('a').CCCComo({
+		onCombo: function(combo) {}, // callback
+		combos: [], 			// an array of your prefeined combos to check against
+		comboTimeout: 1000,		// timeout for linking moves into a combo
+		tapTimeout: 100,		// timout for taps to register as individual taps
+	})
+
+
+If the elemements that are being used as Hit Areas don't have a predefined `data-combo-id` then one will be assigned based on it's index. (though its better to predefine them otherwise your combo definitions wouldd be rather pointless).
