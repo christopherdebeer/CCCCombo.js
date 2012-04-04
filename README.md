@@ -18,7 +18,7 @@ Combos are supplied as objects containing an `id`, a `desc`, and `moves` assosia
 
 	{
 		id: "example",
-		description: "Example Combo!",
+		desc: "Example Combo!",
 		moves: [
 			{area: ["A"], dir: "tap"},
 			{area: ["A"], dir: "tap"},
