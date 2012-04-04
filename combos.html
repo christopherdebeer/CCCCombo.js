@@ -1,0 +1,83 @@
+<html>
+<head>
+	<title>combos</title>
+	<meta content="user-scalable=no, width=device-width, initial-scale=1.0" name="viewport">
+	<style type="text/css" media="screen">
+
+	html, body {
+		-moz-user-select: none;
+	}
+		#grid {
+			overflow: auto;
+			width: 226px;
+		}
+		#grid a.panel {
+			float: left;
+			width: 30px;
+			height: 30px;
+			padding: 20px;
+			display: inline-block;
+			text-align: center;
+			border: 1px solid red;
+
+			-moz-user-select: none;
+			user-select: none;
+            -moz-touch-callout: none;
+            touch-callout: none;
+            -moz-user-drag: none;
+            user-drag: none;
+            -moz-tap-highlight-color: rgba(0,0,0,0);
+            tap-highlight-color: rgba(0,0,0,0);
+		}
+		p#output {
+			width: 156px;
+			font-size: 10px;
+			font-family: monospace;
+		}
+	</style>
+
+	<script src="public/js/hammer.js/hammer.js" type="text/javascript" charset="utf-8" ></script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
+	<script src="http://documentcloud.github.com/underscore/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="public/js/hammer.js/jquery.hammer.js" type="text/javascript" charset="utf-8" ></script>
+	<script src="CCCCombo.js" type="text/javascript" charset="utf-8" ></script>
+	<script type="text/javascript" charset="utf-8">
+		
+
+
+		$(document).ready(function() {
+			$('a.panel').CCCCombo({
+				onCombo: function(combo) {
+					if (combo.move.length > 0) {
+						console.log("CCCCombo!!! ", combo.move);
+						var output = combo.move.length + " --> ";
+						for (x in combo.move) {
+							output += combo.move[x].id + "[" + combo.move[x].dir + "], ";
+						}
+						$('#output').prepend( output + "poss: "+ combo.poss+" ref: " + combo.ref + "match: " + combo.match + "<br/>");
+					}
+				}
+			});
+		});
+
+
+	</script>
+</head>
+<body>
+
+	<div id="grid">
+		<a href="#" class="panel" data-combo-id="tL">0</a>
+		<a href="#" class="panel" data-combo-id="tM">1</a>
+		<a href="#" class="panel" data-combo-id="tR">2</a>
+		<a href="#" class="panel" data-combo-id="mL">3</a>
+		<a href="#" class="panel" data-combo-id="mM">4</a>
+		<a href="#" class="panel" data-combo-id="mR">5</a>
+		<a href="#" class="panel" data-combo-id="bL">6</a>
+		<a href="#" class="panel" data-combo-id="bM">7</a>
+		<a href="#" class="panel" data-combo-id="bR">8</a>
+	</div>
+
+	<p id="output"></p>
+	
+</body>
+</html>
