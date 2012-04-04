@@ -6,20 +6,21 @@
 
 	html, body {
 		-moz-user-select: none;
+		margin: 0;
+		padding: 0;
 	}
 		#grid {
 			overflow: auto;
-			width: 226px;
+			width: 100%;
 		}
 		#grid a.panel {
 			float: left;
-			width: 30px;
-			height: 30px;
-			padding: 20px;
+			width: 33.3%;
+			height: 40px;
+			padding: 20px 0;
 			display: inline-block;
 			text-align: center;
-			border: 1px solid red;
-
+			background-color: #eee;
 			-moz-user-select: none;
 			user-select: none;
             -moz-touch-callout: none;
@@ -28,9 +29,17 @@
             user-drag: none;
             -moz-tap-highlight-color: rgba(0,0,0,0);
             tap-highlight-color: rgba(0,0,0,0);
+            color: #000;
+		}
+		#grid a.panel:nth-child(odd) {
+			background-color: #ccc;
+		}
+		#grid a.panel:active {
+			background-color: #333;
+			color: #fff;
 		}
 		p#output {
-			width: 156px;
+			width: 100%;
 			font-size: 10px;
 			font-family: monospace;
 		}
@@ -49,12 +58,13 @@
 			$('a.panel').CCCCombo({
 				onCombo: function(combo) {
 					if (combo.move.length > 0) {
-						console.log("CCCCombo!!! ", combo.move);
+						//console.log("CCCCombo!!! ", combo.move);
 						var output = combo.move.length + " --> ";
 						for (x in combo.move) {
 							output += combo.move[x].id + "[" + combo.move[x].dir + "], ";
 						}
-						$('#output').prepend( output + "poss: "+ combo.poss+" ref: " + combo.ref + "match: " + combo.match + "<br/>");
+						if (combo.match) output += ' MOVES: ' + combo.matched;
+						$('#output').prepend( output  + "<br/>");
 					}
 				}
 			});
