@@ -16,25 +16,25 @@ Combo Definition
 
 Combos are supplied as objects containing an `id`, a `desc`, and `moves` assosiated with the combo, and each move can either have a direction or area or both (Both are arrays, ie: options). For example hitting button `A` three times in a row, is done like so
 
-{
-	id: "example",
-	description: "Example Combo!",
-	moves: [
-		{area: ["A"], dir: "tap"},
-		{area: ["A"], dir: "tap"},
-		{area: ["A"], dir: "tap"},
-	]
-}
+	{
+		id: "example",
+		description: "Example Combo!",
+		moves: [
+			{area: ["A"], dir: "tap"},
+			{area: ["A"], dir: "tap"},
+			{area: ["A"], dir: "tap"},
+		]
+	}
 
 A combo can have a direction but no assosiated Area (Button), thus working on all buttons. The below combo would work on all buttons and can be activated by either doing to movement equal to: "Left Down Right Up" or "Right Up Left Down".
 
-{
-	id: "example2",
-	desc: "Reverse RoundHouse!!",
-	moves: [
-		{dir: ["ldru", "ruld"]}
-	]
-}
+	{
+		id: "example2",
+		desc: "Reverse RoundHouse!!",
+		moves: [
+			{dir: ["ldru", "ruld"]}
+		]
+	}
 
 #Directions
 
