@@ -26,7 +26,7 @@ Combos are supplied as objects containing an `id`, a `desc`, and `moves` assosia
 		]
 	}
 
-A combo can have a direction but no assosiated Area (Button), thus working on all buttons. The below combo would work on all buttons and can be activated by either doing to movement equal to: "Left Down Right Up" or "Right Up Left Down".
+A combo can have a direction but no assosiated Area (Button), thus working on all buttons. The below combo would work on all buttons and can be activated by either doing the movement equal to: "Left Down Right Up" or "Right Up Left Down".
 
 	{
 		id: "example2",
@@ -36,7 +36,8 @@ A combo can have a direction but no assosiated Area (Button), thus working on al
 		]
 	}
 
-#Directions
+Directions
+---------
 
 Possible directions for a combo move are:
 
@@ -80,3 +81,12 @@ Usage
 	});
 
 
+Options
+--------
+
+$('a').CCCComo({
+	onCombo: function(combo) {}, // callback
+	combos: [], 			// an array of your prefeined combos to check against
+	comboTimeout: 1000,		// timeout for linking moves into a combo
+	tapTimeout: 100,		// timout for taps to register as individual taps
+})
