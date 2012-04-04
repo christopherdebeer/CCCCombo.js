@@ -41,69 +41,7 @@
 		}, options);
 
 
-		var CCCCombos = [
-			{
-				id: "rH2",
-				desc: "Reverse RoundHouse!",
-				moves: [
-					{dir: ["ldru", "ruld"]}
-				]
-			},
-			{
-				id: "rH",
-				desc: "RoundHouse!",
-				moves: [
-					{dir: ["lurd","rdlu"]}
-				]
-			},
-			{
-				id: "slr",
-				desc: "Simple left right",
-				moves: [
-					{dir: ["tap"], areas: ["mL"]},
-					{dir: ["tap"], areas: ["mR"]}
-				]
-			},
-			{
-				id: "ffx",
-				desc: "ForwardForward Punch",
-				moves: [
-					{dir: ["r"]},
-					{dir: ["r"]},
-					{dir: ["tap"], areas: ["mR"]}
-				]
-			},
-			{
-				id: "all",
-				desc: "Generous regex", 
-				moves: [
-					{dir: [/[rlud]*]/]}
-				]
-			},
-			{
-				id: "lrl", 
-				desc: "Left Right Left!!", 
-				moves: [
-					{dir: ["lrl"]}
-				]
-			},
-			{
-				id: "uc2", 
-				desc: "Double Uppercut!",
-				moves: [
-					{dir: ["u"], areas: ["bM"]},
-					{dir: ["u"], areas: ["bM"]}
-				]
-			},
-			{
-				id: "dc2", 
-				desc: "Slam Down!!",
-				moves: [
-					{dir: ["d"], areas: ["tM"]},
-					{dir: ["d"], areas: ["tM"]}
-				]
-			}
-		];
+		var CCCCombos = options.combos;
 
 		var lastMove = [];
 		var lastEl = {
