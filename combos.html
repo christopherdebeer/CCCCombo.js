@@ -2,190 +2,401 @@
 <head>
 	<title>combos</title>
 	<meta content="user-scalable=no, width=device-width, initial-scale=1.0" name="viewport">
-	<style type="text/css" media="screen">
-
-	html, body {
-		-moz-user-select: none;
-		margin: 0;
-		padding: 0;
-	}
-		#grid {
-			overflow: auto;
-			width: 100%;
-		}
-		#grid a.panel {
-			float: left;
-			width: 33.3%;
-			height: 20px;
-			padding: 60px 0;
-			display: inline-block;
-			text-align: center;
-			background-color: #eee;
-			-moz-user-select: none;
-			user-select: none;
-            -moz-touch-callout: none;
-            touch-callout: none;
-            -moz-user-drag: none;
-            user-drag: none;
-            -moz-tap-highlight-color: rgba(0,0,0,0);
-            tap-highlight-color: rgba(0,0,0,0);
-            color: #000;
-		}
-		#grid a.panel:nth-child(odd) {
-			background-color: #ccc;
-		}
-		#grid a.panel:active {
-			background-color: #333;
-			color: #fff;
-		}
-		#combo {
-			position: absolute;
-			width: 100%;
-			text-align: center;
-			top: 40%;
-			color: blue;
-			font-weight: bold;
-			text-shadow: 2px 2px 0px #FFFFFF, -2px -2px 0px #FFFFFF, 2px -2px 0px #FFFFFF, -2px 2px 0px #FFFFFF;
-			font-size: 1.5em;
-		}
-		p#output {
-			width: 100%;
-			font-size: 10px;
-			font-family: monospace;
-		}
-
-	</style>
-
+	<link rel="stylesheet" href="public/css/style.css" type=""text/css>
 	<script src="public/js/hammer.js/hammer.js" type="text/javascript" charset="utf-8" ></script>
-	<script type="text/javascript" src="http://code.jquery.com/jquery.min.js"></script>
-	<script src="http://documentcloud.github.com/underscore/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://code.jquery.com/jquery.min.js" type="text/javascript"></script>
+	<script src="public/js/underscore-min.js" type="text/javascript" charset="utf-8"></script>
 	<script src="public/js/hammer.js/jquery.hammer.js" type="text/javascript" charset="utf-8" ></script>
+	<script src="public/js/pacman.js" type="text/javascript" charset="utf-8"></script>
 	<script src="CCCCombo.js" type="text/javascript" charset="utf-8" ></script>
 	<script type="text/javascript" charset="utf-8">
 		
 
+		// blocks four random areas per turn - no attacks
+		var botPlayer = {
+			getTurn: function(){
+				
+				var blocks = [],
+					opts = ["tL","tM","tR","mL","mM","mR","bL","bM","bR"];
+				
+				for (x=0; x<4; x++) {
+					blocks.push({
+						id: opts[Math.floor(Math.random() * (opts.length-1))],
+						dir: "Dtap",
+						type: "block"
+					})
+				}
+
+				return blocks;
+			}
+		}
+
+		var fight = {
+			user: {
+				hp: 100,
+				ap: 3,
+				dmg: 5,
+				receiveMoves: function (combo) {
+
+					console.log("User AP: ", fight.user.ap);
+					if (combo.move.length > 0) {
+
+						if (combo.match) {
+							
+							var move = combo.matched[0];
+							move.type = "combo";
+							console.log("before combo eq: ", move.moveEq);
+							console.log("before combo roundEq: ", fight.match.currentRound.moveEq);
+							if (move.moveEq + fight.match.currentRound.moveEq > fight.user.ap) fight.match.endRound();
+							else {
+								fight.match.currentRound.moveEq += move.moveEq;
+								fight.match.currentRound.moves.push(move);
+								console.log("move: ", combo.matched[0].desc);
+								fight.ui.displayString(combo.matched[0].desc);
+
+								if (fight.match.currentRound.moveEq >= fight.user.ap) fight.match.endRound();
+							}							
+
+						} else {
+							var moveString = "";
+							var roundOver = false;
+							for (x in combo.move) {
+
+								//console.log(combo.move);
+								var move = combo.move[x];
+
+								console.log("before basic eq: ", 1);
+								console.log("before basic roundEq: ", fight.match.currentRound.moveEq);
+								//console.log("move: ", move.id + "[" + move.dir + "]");
+
+								if (!roundOver) {
+									if (move.dir === "Dtap") move.type = "block"; //moveString += "Block";
+									if (move.dir === "tap") move.type = "punch";//moveString += "Punch";
+									
+									if (fight.match.currentRound.movesEq + 1 > fight.user.ap) {roundOver = true; fight.match.endRound(); }
+									else {
+										fight.match.currentRound.moveEq += 1;
+										fight.match.currentRound.moves.push(move);
+										fight.ui.displayString(move.type);
+
+										if (fight.match.currentRound.moveEq >= fight.user.ap) {roundOver = true; fight.match.endRound(); }
+									}
+								}
+							}
+						}						
+					}
+				}
+			},
+			match: {
+				roundNumber: 0,
+				roundLength: 7000,
+				currentRound: {
+					moves: [],
+					moveEq: 0
+				},
+				roundHistory: [],
+				endRound: function(rN){
+
+					window.clearTimeout(fight.ui.roundTimer);
+					console.log("Round: ", fight.match.roundNumber)
+					
+
+					fight.match.roundNumber++;
+					// console.log(fight.match.currentRound.moves);
+
+					fight.match.compareMoves(fight.match.currentRound.moves, botPlayer.getTurn())
+					fight.match.roundHistory.push(fight.match.currentRound.moves);
+
+					fight.match.currentRound.moves = []; 
+					fight.match.currentRound.moveEq = 0;
+
+					fight.ui.displayString("Round Ended!");
+					// console.log(fight.match.currentRound.moves.length);
+					// $('#timer canvas').remove();
+					fight.ui.startRoundTimer();
+					
+					
+				},
+				extractBlocks: function (moves) {
+					var blocks = _.map(moves, function(m){
+
+						// normal move
+						if (m.type === "block") {
+							//console.log("move was basic block")
+							return m.id;
+						}
+
+						// combo move
+						if (m.type === "combo") {
+							if (m.comboType === "block") {
+								//console.log("move was combo block")
+								return m.blockMatrix;
+							}
+						}
+
+					})
+					//console.log("blocks: ", blocks);
+					return _.filter(_.flatten(blocks), function(x) { return typeof x !== 'undefined'}  );
+				},
+				extractAttacks: function(moves) {
+					var attacks = _.map(moves, function(m){
+
+						// normal move
+						if (m.type === "punch") {
+							//console.log("move was basic attack")
+							return m.id;
+						}
+
+						// combo move
+						if (m.type === "combo") {
+							if (m.comboType === "attack") {
+								//console.log("move was combo attack")
+								return m.hitMatrix;
+							}
+						}
+					})
+					//console.log("attacks: ", attacks);
+					return _.filter(_.flatten(attacks), function(x) { return typeof x !== 'undefined'}  );
+				},
+				compareMoves: function(user, opponent) {
+					// console.log("user Blocks: ", fight.match.extractBlocks(user));
+					console.log("opp Blocks: ", fight.match.extractBlocks(opponent));
+					// console.log("user Attacks: ", fight.match.extractAttacks(user));
+					// console.log("opp Attacks: ", fight.match.extractAttacks(opponent));
+
+					var userAttacks = fight.match.extractAttacks(user),
+						userBlocks = fight.match.extractBlocks(user),
+						oppAttacks = fight.match.extractBlocks(opponent),
+						oppBlocks = fight.match.extractBlocks(opponent);
+
+					_.each(userAttacks, function(a){
+						if (typeof a === 'object') {
+							_.each(a, function(val, key){
+								
+								// blocked
+								if (_.indexOf(oppBlocks, key) !== -1) {
+									console.log("attack*:", key," - blocked");
+									fight.ui.showHitBlock(key, "block");
+								// hit
+								} else {
+									console.log("attack*:", key," - hit");
+									fight.ui.showHitBlock(key, "hit");
+								}
+								
+							})
+						}
+						else {
+							// blocked
+							if (_.indexOf(oppBlocks, a) !== -1) {
+								console.log("attack:", a," - blocked");
+								fight.ui.showHitBlock(a,"block");
+							// hit
+							} else {
+								console.log("attack:", a," - hit");
+								fight.ui.showHitBlock(a, "hit");
+							}
+						}
+					})
+
+				}
+			},
+			ui: {
+
+				showHitBlock: function (area, type) {
+					var selector = '[data-combo-id="'+area+'"]'
+					// console.log("adding type class to: ", selector)
+					$(selector).addClass(type);
+					window.setTimeout(function(){
+						$("[data-combo-id]").removeClass(type);
+					},1000);
+				},
+				displayString: function (s) {
+					$('#combo').text(s);
+					$('#combo').fadeIn(300);
+					window.setTimeout(function(){
+						$('#combo').fadeOut(500);
+					}, 1000);
+				},
+				roundTimer: null,
+				roundTimerPos: 0,
+				startRoundTimer: function (){
+
+						var $canvas = $("<canvas />");
+						$('#timer').html($canvas);
+
+		                $canvas.pacman({
+							 data: [
+				                { colour: "blue", degrees: 0 },
+				                { colour: "transparent", degrees: 360 }
+				            ],
+				            height: 15,
+				            width: 15,
+				            retina: window.devicePixelRatio >= 2,
+				            duration: fight.match.roundLength			                   			
+						})
+
+						console.log("r?: ", fight.match.roundNumber)					
+						
+
+						// setup a timeout
+						fight.ui.roundTimer = window.setTimeout(function(){
+							fight.match.endRound();
+						}, fight.match.roundLength);		            
+				}
+			}
+		}
 
 		$(document).ready(function() {
 
 			document.ontouchmove = function(e){ e.preventDefault(); }
 
+			fight.ui.startRoundTimer();
+
 			$('a.panel').CCCCombo({
-				onCombo: output,
+				onCombo: fight.user.receiveMoves,
 				combos: [
 					{
 						id: "rH2",
 						desc: "Reverse RoundHouse!!",
+						comboType: "attack",
 						moves: [
 							{dir: ["ldru", "ruld"]}
-						]
+						],
+						moveEq: 3,
+						hitMatrix: {
+							"tL": function(x){return x + 2;},
+							"tM": function(x){return x + 2;},
+							"tR": function(x){return x + 2;}
+						},
+						blockMatrix: ["tR"]
 					},
 					{
 						id: "rH",
 						desc: "RoundHouse!",
+						comboType: "attack",
 						moves: [
 							{dir: ["lurd","rdlu"]}
-						]
+						],
+						moveEq: 3,
+						hitMatrix: {
+							"tL": function(x){return x + 2;},
+							"tM": function(x){return x + 2;},
+							"tR": function(x){return x + 2;}
+						},
+						blockMatrix: ["tL"]
 					},
 					{
 						id: "slr",
 						desc: "Simple left right",
+						comboType: "attack",
 						moves: [
 							{dir: ["tap"], areas: ["mL"]},
 							{dir: ["tap"], areas: ["mR"]}
-						]
+						],
+						moveEq: 2,
+						hitMatrix: {
+							"mL": function(x){return x/2;},
+							"mR": function(x){return 2.25*x;}
+						},
+						blockMatrix: ["mL","mR"]
 					},
 					{
 						id: "ffx",
 						desc: "ForwardForward Punch!",
+						comboType: "attack",
 						moves: [
 							{dir: ["r"]},
 							{dir: ["r"]},
 							{dir: ["tap"], areas: ["mR"]}
-						]
-					},
-					{
-						id: "all",
-						desc: "Generous regex", 
-						moves: [
-							{dir: [/[rlud]*]/]}
-						]
+						],
+						moveEq: 2,
+						hitMatrix: {
+							"mR": function(x){return x*3;}
+						},
+						blockMatrix: ["mR"]
 					},
 					{
 						id: "lrl", 
 						desc: "Left Right Left!!", 
+						comboType: "attack",
 						moves: [
 							{dir: ["lrl"]}
-						]
+						],
+						moveEq: 2,
+						hitMatrix: {
+							"*": function(x){return x*3;}
+						},
+						blockMatrix: ["*"]
 					},
 					{
 						id: "uc", 
 						desc: "Uppercut!",
+						comboType: "attack",
 						moves: [
 							{dir: ["u"], areas: ["bM"]}
-						]
+						],
+						moveEq: 1,
+						hitMatrix: {
+							"mM": function(x){return x;},
+							"tM": function(x){return x;}
+						},
+						blockMatrix: ["mM"]
 					},
 					{
 						id: "uc2", 
 						desc: "Double Uppercut!",
+						comboType: "attack",
 						moves: [
 							{dir: ["u"], areas: ["bM"]},
 							{dir: ["u"], areas: ["bM"]}
-						]
-					},
-					{
-						id: "dc2", 
-						desc: "Downcut!",
-						moves: [
-							{dir: ["d"], areas: ["tM"]}
-						]
+						],
+						moveEq: 2,
+						hitMatrix: {
+							"mM": function(x){return x * 1.5;},
+							"tM": function(x){return x * 1.5;}
+						},
+						blockMatrix: ["mM"]
 					},
 					{
 						id: "dc2", 
 						desc: "Slam Down!!",
+						comboType: "attack",
 						moves: [
 							{dir: ["d"], areas: ["tM"]},
 							{dir: ["d"], areas: ["tM"]}
-						]
+						],
+						moveEq: 2,
+						hitMatrix: {
+							"mM": function(x){return x * 1.5;},
+							"bM": function(x){return x * 1.5;}
+						},
+						blockMatrix: ["tM"]
+					},
+					{
+						id: "ev1", 
+						desc: "Duck!",
+						comboType: "block",
+						moves: [
+							{dir: ["d"], areas: ["tM"]}
+						],
+						moveEq: 2,
+						blockMatrix: ["tL","tM","tR"]
 					}
 				]
 			});
 
 
-			function output (combo) {
-				if (combo.move.length > 0) {
-					//console.log("CCCCombo!!! ", combo.move);
-					var output = combo.move.length + " --> ";
-					var move = "";
-					for (x in combo.move) {
-						move += combo.move[x].id + "[" + combo.move[x].dir + "]";
-						if (typeof combo.move[x + 1] !== 'undefined') move += ", ";
-					}
-					output += move;
-					if (combo.match) output2 = output + move + ' MOVES: ' + combo.matched;
-					$('#output').prepend( output  + "<br/>");
-
-
-					if (combo.match) outputNormal(combo.matched);
-					else outputNormal(move)
-					
-				}
-			}
-
-			function outputNormal(s) {
-				$('#combo').text(s);
-				$('#combo').fadeIn(300);
-				window.setTimeout(function(){
-					$('#combo').fadeOut(500);
-				}, 1000);
-			}
+			
 		});
 
 
 	</script>
 </head>
 <body>
+	<div id="timer"></div>
 	<div id="combo"></div>
 	<div id="grid">
+		<img src="public/img/avatar.png" alt=""/>
 		<a href="#" class="panel" data-combo-id="tL">0</a>
 		<a href="#" class="panel" data-combo-id="tM">1</a>
 		<a href="#" class="panel" data-combo-id="tR">2</a>

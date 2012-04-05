@@ -5,7 +5,8 @@
 			hackTheCSS: false,
 			comboTimeout: 1000,
 			tapTimeout: 100,
-			onCombo: $.noop
+			onCombo: $.noop,
+			debug: false
 		}, options);
 
 
@@ -44,7 +45,7 @@
 		}
 
 		function moveCheck (move) {
-			// console.log("move: ", move);
+			if (options.debug) console.log("move: ", move);
 			// if (move.dir === "lrl" && (move.id === "mL" || move.id === "mR")) return {id: move.id, dir: "Left Right Left"};
 			// if (move.dir === "u" && move.id ==="bM") return {id: move.id, dir: "Uppercut!!"};
 			// if (move.dir === "ldru" || move.dir === "rdul" || move.dir === "lurd" || move.dir === "rdlu") return {id: move.id, dir: "Round House!!!"};
@@ -70,7 +71,7 @@
 
 				for (m in lastMove) {
 
-					console.log( m, " move: ", lastMove[0])
+					if (options.debug) console.log( m, " move: ", lastMove[0])
 
 					// check is move [m] has matching area
 					var matchingArea = _.filter(CCCCombos, function(comb) {
@@ -86,7 +87,7 @@
 						
 					})
 
-					//console.log("possible matches: ", matchingArea);
+					if (options.debug) console.log("possible matches: ", matchingArea);
 
 
 					// check if move [m] has matching dir
@@ -101,13 +102,13 @@
 									else return false;
 								}) > 0;
 
-								console.log("regex match: " + dirRegex.toString());
+								if (options.debug) console.log("regex match: " + dirRegex.toString());
 
 							return noDir || dirMatch || dirRegex;
 						}
 					})
 
-					//console.log("refined matches: ", matchingDir);
+					if (options.debug) console.log("refined matches: ", matchingDir);
 
 					if (matchingDir.length > 0) matchCount++;
 					if (matchCount === lastMove.length) {
@@ -125,7 +126,7 @@
 
 			options.onCombo({
 				move 	: lastMove, 
-				matched : _.pluck(matchedMoves, "desc").join(" | "),
+				matched : matchedMoves,
 				match 	: matchedMoves.length > 0,
 				matchCount: matchCount
 			});
@@ -151,7 +152,7 @@
 
 			$this.hammer().bind('dragend', function (ev) {
 				
-				console.log("multipoint: ",ev.touches.length > 1);
+				if (options.debug) console.log("multipoint: ",ev.touches.length > 1);
 				if (lastEl.id !== null) {
 					startComboTimeout();
 					lastMove.push(moveCheck(lastEl));
@@ -165,7 +166,7 @@
 
 			$this.hammer().bind('tap', function (ev) {
 				
-				console.log("multipoint: ",ev.touches.length > 1);
+				if (options.debug) console.log("multipoint: ",ev.touches.length > 1);
 				if (!tapTimeout) {
 					startTapTimeout();
 					var id = $this.attr('data-combo-id');					
@@ -177,7 +178,7 @@
 
 			$this.hammer().bind('doubletap', function (ev) {
 				
-				console.log("multipoint: " + (ev.touches.length > 1));
+				if (options.debug) console.log("multipoint: " + (ev.touches.length > 1));
 				if (!tapTimeout) {
 					startTapTimeout();
 					var id = $this.attr('data-combo-id');
